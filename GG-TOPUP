@@ -1,0 +1,176 @@
+GG<!--
+GG-TOPUP + TBS Laos - Single-file demo payment page
+Instructions:
+1) Replace the placeholder image `qr-bcel.png` with your QR image file (same folder).
+2) Open this file in a browser to test locally.
+3) To publish, upload the file to any static host (GitHub Pages, Netlify, Vercel, or your web hosting).
+4) If you want HTTPS and a custom domain, configure via the host provider (Netlify/Vercel offer free HTTPS).
+
+Features included:
+- Responsive layout
+- QR image display
+- Copy account number button
+- Click-to-open-dialog with copy and instructions
+- Contact / payment notes (phone, Line, discount)
+- Simple admin link placeholder
+--><!doctype html>
+
+<html lang="lo">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>GG-TOPUP • TBS Laos — ເຕີມເງິນ</title>
+  <meta name="description" content="GG-TOPUP + TBS Laos - ເວັບເຕີມເງິນພ້ອມໃຊ້. ສະແກນ QR ຫຼື ຄັດລອກເລກບັນຊີ ເພື່ອໂອນເງິນ.">
+  <style>
+    :root{--accent:#1273e6;--accent-dark:#0f5ec4;--card:#fff;--bg:#f3f7fb;--muted:#6b7280}
+    *{box-sizing:border-box}
+    body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,'Noto Sans Lao',sans-serif;margin:0;background:linear-gradient(180deg,var(--bg),#fff);color:#0b1220}
+    .wrap{max-width:920px;margin:24px auto;padding:18px}
+    .top{display:flex;align-items:center;gap:16px}
+    .logo{width:78px;height:78px;border-radius:14px;background:var(--accent);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:18px}
+    .brand h1{margin:0;font-size:20px}
+    .brand p{margin:2px 0 0;color:var(--muted);font-size:13px}.card{background:var(--card);border-radius:14px;padding:18px;margin-top:18px;box-shadow:0 10px 30px rgba(11,18,32,0.06);display:grid;grid-template-columns:1fr 320px;gap:18px}
+@media (max-width:800px){.card{grid-template-columns:1fr} .qr-col{order:-1}}
+
+.info h2{margin:0 0 8px;font-size:18px}
+.info p{margin:0 0 12px;color:var(--muted)}
+
+.row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px}
+.chip{background:#f1f5f9;padding:8px 10px;border-radius:10px;font-size:13px}
+
+.account-box{background:#f8fafc;border-radius:10px;padding:12px;display:flex;align-items:center;justify-content:space-between}
+.acc-left{font-weight:700}
+.acc-meta{color:var(--muted);font-size:13px}
+
+.btn{background:var(--accent);color:#fff;border:none;padding:10px 14px;border-radius:10px;cursor:pointer;font-weight:600}
+.btn.secondary{background:#fff;border:1px solid #e6eefc;color:var(--accent)}
+
+.qr-col{display:flex;flex-direction:column;align-items:center;gap:12px;padding:12px}
+.qr-wrap{background:linear-gradient(180deg,#fff,#fbfdff);padding:14px;border-radius:12px;width:100%;display:flex;flex-direction:column;align-items:center;gap:12px}
+.qr-wrap img{max-width:260px;width:100%;height:auto;border-radius:8px}
+.small{font-size:13px;color:var(--muted)}
+
+.footer{margin-top:16px;color:var(--muted);font-size:13px;display:flex;justify-content:space-between;align-items:center}
+
+/* modal */
+.modal{position:fixed;inset:0;background:rgba(6,12,20,0.45);display:none;align-items:center;justify-content:center;padding:20px}
+.modal.open{display:flex}
+.modal-card{background:#fff;padding:18px;border-radius:12px;max-width:480px;width:100%;box-shadow:0 20px 50px rgba(2,6,23,0.35)}
+.modal-card h3{margin:0 0 10px}
+.modal-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:12px}
+
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="top">
+      <div class="logo">GG</div>
+      <div class="brand">
+        <h1>GG-TOPUP • TBS Laos</h1>
+        <p>ເຕີມເງິນເກມ • ຈ່າຍເງິນຜ່ານ BCEL LAPNet</p>
+      </div>
+    </div><div class="card">
+  <div class="info">
+    <h2>ວິທີໂອນ</h2>
+    <p>ກະລຸນາສະແກນ QR ຫຼື ຄັດລອກເລກບັນຊີ ເພື່ອໂອນເງິນ. ການຢືນຢັນແລ້ວ ສົ່ງໃຫ້ພວກເຮົາເພື່ອຢືນຢັນການຮັບເງິນ.</p>
+
+    <div class="row">
+      <div class="chip">ໂທ: 02098997716</div>
+      <div class="chip">LINE: @TBS Laos</div>
+      <div class="chip">ສ່ວນຫຼຸດ 5% ສຳລັບລູກຄ້າ</div>
+    </div>
+
+    <div class="account-box" style="margin-bottom:10px">
+      <div>
+        <div class="acc-left">ເລກບັນຊີ: <span id="acc">2011237728212</span></div>
+        <div class="acc-meta">BCEL (ທະນາຄານການຄ້າຕ່າງປະເທດ ລາວ)</div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <button class="btn" id="copyBtn">ຄັດລອກເລກ</button>
+        <button class="btn secondary" id="openModal">ຄໍາແນະນໍາ</button>
+      </div>
+    </div>
+
+    <div style="margin-top:6px">
+      <button class="btn" id="confirmBtn">ຢືນຢັນການໂອນ (ຈັດສົ່ງໃຫ້)</button>
+    </div>
+
+    <div class="footer">
+      <div>GG-TOPUP SHOPPY</div>
+      <div class="small">ເວັບເຕີມເກມພ້ອມໃຊ້</div>
+    </div>
+  </div>
+
+  <div class="qr-col">
+    <div class="qr-wrap">
+      <!-- Replace qr-bcel.png with your actual QR file name in same folder -->
+      <img id="qrImg" src="qr-bcel.png" alt="QR BCEL LAPNet">
+      <div class="small">ສະແກນ QR ດ້ວຍໂທລະສັບຂອງທ່ານ ຫຼື ຄັດລອກເລກບັນຊີ</div>
+    </div>
+    <div style="width:100%;display:flex;gap:8px">
+      <button class="btn" id="downloadQR">ດາວໂຫຼດ QR</button>
+      <button class="btn secondary" id="shareBtn">ຮ່ວມແບ່ງ</button>
+    </div>
+  </div>
+</div>
+
+<!-- modal -->
+<div class="modal" id="modal">
+  <div class="modal-card">
+    <h3>ຄໍາແນະນໍາ ການໂອນ</h3>
+    <p>1) ສະແກນ QR ແລ້ວໂອນເງິນຕາມຈຳນວນ.
+    <br>2) ບັນທຶກຮູບຈໍານວນຫຼືໜ້າຢືນຢັນ.
+    <br>3) ເຊັ່ນແລ້ວກົດ "ຢືນຢັນ" ເພື່ອສົ່ງຂໍ້ມູນຫາ admin.</p>
+    <div class="modal-actions">
+      <button class="btn secondary" id="modalClose">ປິດ</button>
+      <button class="btn" id="modalCopy">ຄັດລອກເລກ</button>
+    </div>
+  </div>
+</div>
+
+  </div>  <script>
+    const acc = document.getElementById('acc').textContent.trim();
+    document.getElementById('copyBtn').addEventListener('click', async ()=>{
+      try{await navigator.clipboard.writeText(acc);alert('ຄັດລອກເລກບັນຊີແລ້ວ');}
+      catch(e){prompt('ກັບທີ່ນີ້ ຄັດລອກເລກ:', acc)}
+    });
+
+    document.getElementById('openModal').addEventListener('click', ()=>{
+      document.getElementById('modal').classList.add('open');
+    });
+    document.getElementById('modalClose').addEventListener('click', ()=>{
+      document.getElementById('modal').classList.remove('open');
+    });
+    document.getElementById('modalCopy').addEventListener('click', async ()=>{
+      try{await navigator.clipboard.writeText(acc);alert('ຄັດລອກເລກບັນຊີແລ້ວ');}
+      catch(e){prompt('ຄັດລອກເລກ:', acc)}
+    });
+
+    // download qr
+    document.getElementById('downloadQR').addEventListener('click', ()=>{
+      const img = document.getElementById('qrImg');
+      const link = document.createElement('a');
+      link.href = img.src;
+      link.download = 'gg-topup-qr.png';
+      link.click();
+    });
+
+    // share (navigator.share if available)
+    document.getElementById('shareBtn').addEventListener('click', ()=>{
+      const url = window.location.href;
+      if(navigator.share){
+        navigator.share({title:'GG-TOPUP • TBS Laos',text:'ເຕີມເງິນກັບ GG-TOPUP',url});
+      } else {
+        navigator.clipboard.writeText(url).then(()=>alert('ລິ້ງໄຟລ໌ໄດ້ຄັດລອກ'));}
+    });
+
+    // confirm button (simple demo action)
+    document.getElementById('confirmBtn').addEventListener('click', ()=>{
+      const name = prompt('ໃສ່ຊື່ຜູ້ໂອນ (ສາມາດປ່ອນ):');
+      if(name){
+        alert('ຂອບໃຈ '+name+'! ພວກເຮົາຈະຕິດຕໍ່ຄູ່ມື້ຕໍ່ໄປ');
+        // here you can call server API to submit proof (not implemented in static demo)
+      }
+    });
+  </script></body>
+</html>
